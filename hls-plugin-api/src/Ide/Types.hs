@@ -203,7 +203,7 @@ instance Default Config where
     -- , cabalFormattingProvider     = "cabal-fmt"
     -- this string value needs to kept in sync with the value provided in HlsPlugins
     , maxCompletions              = 40
-    , sessionLoading              = PreferSingleComponentLoading
+    , sessionLoading              = PreferMultiComponentLoading
     , plugins                     = mempty
     }
 
@@ -218,10 +218,7 @@ data CheckParents
 
 
 data SessionLoadingPreferenceConfig
-    = PreferSingleComponentLoading
-    -- ^ Always load only a singleComponent when a new component
-    -- is discovered.
-    | PreferMultiComponentLoading
+    = PreferMultiComponentLoading
     -- ^ Always prefer loading multiple components in the cradle
     -- at once. This might not be always possible, if the tool doesn't
     -- support multiple components loading.
@@ -231,18 +228,14 @@ data SessionLoadingPreferenceConfig
   deriving stock (Eq, Ord, Show, Generic)
 
 instance Pretty SessionLoadingPreferenceConfig where
-    pretty PreferSingleComponentLoading = "Prefer Single Component Loading"
     pretty PreferMultiComponentLoading  = "Prefer Multiple Components Loading"
 
 instance ToJSON SessionLoadingPreferenceConfig where
-    toJSON PreferSingleComponentLoading =
-        String "singleComponent"
     toJSON PreferMultiComponentLoading =
         String "multipleComponents"
 
 instance FromJSON SessionLoadingPreferenceConfig where
     parseJSON (String val) = case val of
-        "singleComponent"    -> pure PreferSingleComponentLoading
         "multipleComponents" -> pure PreferMultiComponentLoading
         _ -> A.prependFailure "parsing SessionLoadingPreferenceConfig failed, "
             (A.parseFail $ "Expected one of \"singleComponent\" or \"multipleComponents\" but got " <> T.unpack val )

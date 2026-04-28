@@ -580,11 +580,7 @@ getExtraFilesToLoad state cfp = do
   old_files <- readVar (loadedFiles state)
   -- if the file is in error loading files, we fall back to single loading mode
   return $
-    Set.toList $
-      if cfp `Set.member` errorFiles
-        then Set.empty
-        -- remove error files from pending files since error loading need to load one by one
-        else (Set.delete cfp $ pendingFiles `Set.difference` errorFiles) <> old_files
+    Set.toList $ (Set.delete cfp $ pendingFiles) <> old_files
 
 -- | We allow users to specify a loading strategy.
 -- Check whether this config was changed since the last time we have loaded
@@ -1061,7 +1057,6 @@ cradleToOptsAndLibDir recorder loadConfig cradle file old_fps = do
 
     where
         loadStyle = case loadConfig of
-            PreferSingleComponentLoading -> LoadFile
             PreferMultiComponentLoading  -> LoadWithContext old_fps
 
 -- ----------------------------------------------------------------------------
